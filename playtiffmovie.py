@@ -2,7 +2,7 @@
 #playtiffmovie.py
 #ipython -i -c "%run playtiffmovie.py 'file1.tif'
 #python playtiffmovie.py 'file1.tif' 'file2.tif'
-#James B. Ackman 2016-06-01 13:52:33  
+#James B. Ackman 2016-06-20 16:47:02  
 
 import os, sys
 from timeit import default_timer as timer
@@ -106,15 +106,14 @@ def main():
     
     print(A2.shape)
     t0 = timer()
-    #A2 = A2.astype('float32', copy=False)
-    A2 = A2.astype('float32', order='A', copy=True)
-    print(np.isfortran(A2))
+    A2 = A2.astype('float32', copy=False)
+    #A2 = A2.astype('float32', order='A', copy=True)
     print("float32: {0} sec".format(timer()-t0))
 
     t0 = timer()
-    #Amean = np.mean(A2,axis=0)
-    Amean = np.add.reduce(A2, 0)
-    Amean /= A2.shape[0]
+    Amean = np.mean(A2,axis=0)
+    #Amean = np.add.reduce(A2, 0)
+    #Amean /= A2.shape[0]
     print("z mean: {0} sec".format(timer()-t0))
 
     t0 = timer()
