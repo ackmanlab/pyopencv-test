@@ -27,6 +27,7 @@ def playMovie(A,newMinMax=False):
     i = 0
     
     #Normalize movie range and change to uint8 before display
+    t0 = timer()
     sz = A.shape
     A = np.reshape(A, (sz[0], A.size/sz[0]))
     meanA,stdA = cv2.meanStdDev(A)
@@ -45,7 +46,8 @@ def playMovie(A,newMinMax=False):
     cv2.multiply(A, newSlope, A)
     A = np.reshape(A, sz)
     A = A.astype('uint8', copy=False)
-    
+    print("Movie range normalization: {0}".format(timer()-t0))
+
     while True:
         #im = np.uint8(A3[:,:,i] * 255)
         im = A[i,:,:]
@@ -104,22 +106,35 @@ def main():
         A2 = A
         del(A)
     
+    sz = A2.shape
+    A2 = np.reshape(A2, (sz[0], A2.size/sz[0]))
     print(A2.shape)
-    t0 = timer()
-    A2 = A2.astype('float32', copy=False)
-    #A2 = A2.astype('float32', order='A', copy=True)
-    print("float32: {0} sec".format(timer()-t0))
 
     t0 = timer()
-    Amean = np.mean(A2,axis=0)
+    Amean = np.mean(A2,axis=0,dtype='float32')
+    #A2 = np.reshape(A2, (A2.shape[0], A.shape[2], A.shape[3]))
+    #Amean = cv2.reduce(A2,0,cv2.REDUCE_AVG)
     #Amean = np.add.reduce(A2, 0)
     #Amean /= A2.shape[0]
     print("z mean: {0} sec".format(timer()-t0))
+    print("Amean shape: {0}".format(Amean.shape))
+    #Amean = np.reshape(Amean, (sz[1],sz[2]))
+    #A2 = np.reshape(A2, sz)
+    print("Amean type: {0}".format(Amean.dtype))
 
     t0 = timer()
+    A2 = A2.astype('float32', copy=False)
+    print("float32: {0} sec".format(timer()-t0))
+
+    t0 = timer()
+    # for i in np.arange(A2.shape[0]):
+    #     A2[i,:,:] = ((A2[i,:,:] / Amean) - 1.0)
     for i in np.arange(A2.shape[0]):
-        A2[i,:,:] = ((A2[i,:,:] / Amean) - 1.0)
+        A2[i,:] /= Amean
+        A2[i,:] -= 1.0
+
     print("dfof normalization: {0} sec".format(timer()-t0))
+    A2 = np.reshape(A2, sz)
     print(A2.dtype)
     print(A2.shape)
     playMovie(A2)
