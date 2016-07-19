@@ -48,26 +48,39 @@ def playMovie(A,newMinMax=False):
     A = A.astype('uint8', copy=False)
     print("Movie range normalization: {0}".format(timer()-t0))
 
+    toggleNext = True
     while True:
         #im = np.uint8(A3[:,:,i] * 255)
         im = A[i,:,:]
         #im = cv2.GaussianBlur(im,(0,0),3)
         #th,bw = cv2.threshold(im,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         #bw = cv2.adaptiveThreshold(im,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,5,0)
+        cv2.putText(im, str(i), (5,25), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (155,155,155)) #draw frame text
         im = cv2.applyColorMap(im, cv2.COLORMAP_JET)
         cv2.imshow('raw',im)
         k = cv2.waitKey(10) 
         if k == 27: #if esc is pressed
             break
-        if k == ord('b'):
+        elif (k == ord(' ')) and (toggleNext == True): #if space is pressed
+            tf = False
+        elif (k == ord(' ')) and (toggleNext == False): #if space is pressed
+            tf = True
+        toggleNext = tf #toggle the switch
+        toggleNext = tf #toggle the switch
+        if k == ord('b') and toggleNext:
             i -= 100
-        elif k == ord('f'):
+        elif k == ord('f') and toggleNext:
             i += 100
-        else:
+        elif k == ord('>') and (toggleNext == False):
             i += 1
+        elif k == ord('<') and (toggleNext == False):
+            i -= 1
+        elif toggleNext:
+            i += 1
+        
         if (i > (A.shape[0]-1)) or (i < 0) :
             i = 0
-
+    
     cv2.destroyAllWindows()
 
 
@@ -90,21 +103,22 @@ def main():
          A = tif.asarray()
     print("Load movie: {0} sec".format(timer()-t0))
     
+    A2 = A
+    del(A)
     if nfiles > 1:
         #reshape multiple arrays into one
         # A = np.reshape(A, (A.shape[0]*A.shape[1], A.shape[2], A.shape[3]))
-        t0 = timer()
-        with tifffile.TiffFile(fn[1]) as tif:
-             A1 = tif.asarray()
-        print("Load movie: {0} sec".format(timer()-t0))
+        for i in np.arange(1,nfiles):
+            t0 = timer()
+            with tifffile.TiffFile(fn[i]) as tif:
+                 A1 = tif.asarray()
+            print("Load movie: {0} sec".format(timer()-t0))
 
-        t0 = timer()
-        A2 = np.concatenate((A, A1), axis=0)
-        print("numpy cat arrays {0} sec".format(timer()-t0))
-        del(A,A1)
-    else:
-        A2 = A
-        del(A)
+            t0 = timer()
+            A2 = np.concatenate((A2, A1), axis=0)
+            print("numpy cat arrays {0} sec".format(timer()-t0))
+            
+        del(A1)
     
     sz = A2.shape
     A2 = np.reshape(A2, (sz[0], A2.size/sz[0]))
