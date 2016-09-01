@@ -2,6 +2,7 @@
 #playtiffmovie.py
 #ipython -i -c "%run playtiffmovie.py 'file1.tif'
 #python playtiffmovie.py 'file1.tif' 'file2.tif'
+#python playtiffmovie.py '151103_05.tif' $(ls 151103_05@*.tif)
 #James B. Ackman 2016-06-20 16:47:02  
 
 import os, sys
@@ -49,14 +50,15 @@ def playMovie(A,newMinMax=False):
     print("Movie range normalization: {0}".format(timer()-t0))
 
     toggleNext = True
+    tf = True
     while True:
         #im = np.uint8(A3[:,:,i] * 255)
         im = A[i,:,:]
         #im = cv2.GaussianBlur(im,(0,0),3)
         #th,bw = cv2.threshold(im,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         #bw = cv2.adaptiveThreshold(im,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,5,0)
-        cv2.putText(im, str(i), (5,25), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (155,155,155)) #draw frame text
         im = cv2.applyColorMap(im, cv2.COLORMAP_JET)
+        cv2.putText(im, str(i), (5,25), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255,255,255)) #draw frame text
         cv2.imshow('raw',im)
         k = cv2.waitKey(10) 
         if k == 27: #if esc is pressed
@@ -66,21 +68,20 @@ def playMovie(A,newMinMax=False):
         elif (k == ord(' ')) and (toggleNext == False): #if space is pressed
             tf = True
         toggleNext = tf #toggle the switch
-        toggleNext = tf #toggle the switch
         if k == ord('b') and toggleNext:
             i -= 100
         elif k == ord('f') and toggleNext:
             i += 100
-        elif k == ord('>') and (toggleNext == False):
+        elif k == ord('m') and (toggleNext == False):
             i += 1
-        elif k == ord('<') and (toggleNext == False):
+        elif k == ord('n') and (toggleNext == False):
             i -= 1
         elif toggleNext:
             i += 1
         
         if (i > (A.shape[0]-1)) or (i < 0) :
             i = 0
-    
+
     cv2.destroyAllWindows()
 
 
@@ -103,22 +104,24 @@ def main():
          A = tif.asarray()
     print("Load movie: {0} sec".format(timer()-t0))
     
-    A2 = A
-    del(A)
     if nfiles > 1:
         #reshape multiple arrays into one
         # A = np.reshape(A, (A.shape[0]*A.shape[1], A.shape[2], A.shape[3]))
+        Alist = [A]
         for i in np.arange(1,nfiles):
             t0 = timer()
             with tifffile.TiffFile(fn[i]) as tif:
-                 A1 = tif.asarray()
+                 Alist.append(tif.asarray())
             print("Load movie: {0} sec".format(timer()-t0))
-
-            t0 = timer()
-            A2 = np.concatenate((A2, A1), axis=0)
-            print("numpy cat arrays {0} sec".format(timer()-t0))
-            
-        del(A1)
+        
+        t0 = timer()
+        #Alist = tuple(Alist)
+        A2 = np.concatenate(Alist, axis=0)
+        print("numpy cat arrays {0} sec".format(timer()-t0))
+        del(Alist)
+    else:
+        A2 = A
+    del(A)
     
     sz = A2.shape
     A2 = np.reshape(A2, (sz[0], A2.size/sz[0]))

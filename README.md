@@ -8,21 +8,11 @@ author: James B. Ackman
 
 This is a python/opencv analysis repo to test:  
 
-* test read capability of hdf5 matlab d2r.mat files with h5py and hemispheric symmetry calculations using numpy/opencv
-* test read capability of tiff movies and make dF/F (F-F0/F0) normalization and display using numpy/opencv
+* read capability of hdf5 matlab d2r.mat files with h5py and hemispheric symmetry calculations using numpy/opencv
+* read capability of tiff movies and make dF/F (F-F0/F0) normalization and display using numpy/opencv
+
+The python notebooks have contain some subfunctions and routines that are potentially instructive. The images saved in assets are a number of snapshot frame of bi-hemispheric activity patterns that were saved by pressing `s` while playing movies in `2016-06-15-opencv-RGBmasks-xcorr.ipynb`
 
 See also [anaconda python installation and opencv setup instructions](http://ackmanlab.com/2016/06/20/install-ipython.html)
 
-Standalone functions (details to follow):
-
-`hemisphereXcorr.py`  
-: do xcorr calculations on a cluster of amazon EC2 instances. More detail on this follow.  
-
-`playtiffmovie.py`  
-: run this from command line (on osx or windows or linux) to open up 1 or more tiff files, concatenate, and display as dF/F in opencv window. Hopefully we can use this to replace the [ImageJ macro dFoFmovie](https://gist.github.com/ackman678/11155761) on local or acquisition pcs.  
-: to run enter in your terminal: `python playtiffmovie.py 'file1.tif' 'file2.tif'`  
-
-TODO:  
-
-* [ ] edit logic in playtiffmovie.py to handle more than two input files
-* [ ] compare speed of file opening and display of single or multiple large tiff arrays with playtiffmovie.py vs the imagej macro  
+For companion functions based on some of the scripts implemented in these notebooks see `hemisphereXcorr.py` and `playtiffmovie.py` at [pyWholeBrain](https://github.com/ackmanlab/pyWholeBrain).
